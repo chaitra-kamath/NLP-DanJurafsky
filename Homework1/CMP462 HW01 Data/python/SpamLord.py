@@ -41,16 +41,22 @@ def process_file(name, f):
         line = re.sub('(\w+)\s@\s((?:\w+.?)+)', r'\1@\2', line)
         #replace 'dot'
         line = re.sub('[\s\(](dot)[\s\)]', r'.', line)
-        #replace (at) / at with @
-        line = re.sub('[\s\(]at[\s\)]((?:\w+\.+)+)', r'@\1', line)
-        #emails hidden within html metacharacters
-        line = re.sub("obfuscate\('((?:\w+\.?)+)','(\w+)'\)", r'\2@\1', line)
         #special cases
         if '@-' in line:
             line = re.sub('(\w)-', r'\1', line)
             line = re.sub('-', '', line)
         if 'DOM' in line:
             line = re.sub('(\w+)(\sWHERE\s)(\w+)(\s)(DOM)(\s)(\w+)', r'\1@\3.\7', line)
+        if ';edu' in line:
+            line = re.sub(';', r'.', line)
+        #replace (at) / at with @
+        line = re.sub('[\s\(]at[\s\)]((?:\w+\.+)+)', r'@\1', line)
+        #emails hidden within html metacharacters
+        line = re.sub("obfuscate\('((?:\w+\.?)+)','(\w+)'\)", r'\2@\1', line)
+        #more special cases
+        #sometimes, @ comes in as a set of special metacharacters
+        line = re.sub(r'&#x40;', r'@', line)
+        
         email_matches = re.findall(email_pat,line)
 
         #phone
