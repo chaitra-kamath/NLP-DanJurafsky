@@ -34,7 +34,6 @@ def process_file(name, f):
     email_pat = '(\w+)@((?:\w+.?)+)\.[eE][Dd][Uu]'
     phone_pat = '(\d{3})-(\d{3})-(\d{4})'
     res = []
-    print ('current file name: %s' % name)
     # sys.stderr.write('current file name: %s' % name)
     for line in f:
         #replace blank spaces between username and domain
@@ -64,8 +63,6 @@ def process_file(name, f):
             line = re.sub('(email:\s?)(\w+)\s(at)\s(\w+)\s(\w+)\s(\w+)', r'\2@\4.\5.\6', line)
         #avoid catastrophic backtracking in case where there is no real email
         email_matches = re.findall(email_pat,line)
-        if email_matches:
-            print ('email_matches:', email_matches)
         #phone
         line = re.sub('\+1\s?\(?(\d{3})\s?\)?-?\s?(\d{3})[-\s]?(\d{4})', r'\1-\2-\3', line)
         line = re.sub('\((\d{3})\)(\s*)(\d{3})', r'\1-\3', line)
