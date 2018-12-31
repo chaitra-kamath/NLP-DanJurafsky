@@ -34,13 +34,13 @@ def process_file(name, f):
     email_pat = '(\w+)@((?:\w+.?)+)\.[eE][Dd][Uu]'
     phone_pat = '(\d{3})-(\d{3})-(\d{4})'
     res = []
-    # print ('current file name: %s' % name)
+    print ('current file name: %s' % name)
     # sys.stderr.write('current file name: %s' % name)
     for line in f:
         #replace blank spaces between username and domain
         line = re.sub('(\w+)\s@\s((?:\w+.?)+)', r'\1@\2', line)
         #replace 'dot'
-        line = re.sub('[\s\(](dot)[\s\)]', r'.', line)
+        line = re.sub('[\s\(](dot|dt)[\s\)]', r'.', line)
         #special cases
         if '@-' in line:
             line = re.sub('(\w)-', r'\1', line)
@@ -56,9 +56,16 @@ def process_file(name, f):
         #more special cases
         #sometimes, @ comes in as a set of special metacharacters
         line = re.sub(r'&#x40;', r'@', line)
-        
+        #obfuscated emails found in ouster.txt
+        if '(followed by' in line.lower():
+            line = re.sub('(.*>)((?:\w+\.?)+)(.*)(@(?:\w+\.?)+)(.*)', r'\2@\4', line)
+        #look for 'email:' in line and replace form an email
+        if 'email:' in line:
+            line = re.sub('(email:\s?)(\w+)\s(at)\s(\w+)\s(\w+)\s(\w+)', r'\2@\4.\5.\6', line)
+        #avoid catastrophic backtracking in case where there is no real email
         email_matches = re.findall(email_pat,line)
-
+        if email_matches:
+            print ('email_matches:', email_matches)
         #phone
         line = re.sub('\+1\s?\(?(\d{3})\s?\)?-?\s?(\d{3})[-\s]?(\d{4})', r'\1-\2-\3', line)
         line = re.sub('\((\d{3})\)(\s*)(\d{3})', r'\1-\3', line)
